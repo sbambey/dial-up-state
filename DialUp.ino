@@ -1,4 +1,4 @@
-#include "constants.h"
+#include "config.h"
 #include "Arduino.h"
 #include "send.h"
 
@@ -13,7 +13,6 @@ String rec = "";
 boolean active = 0;
 
 String transfer_string = "";
-char characters[400];
 
 void send_signature() {
   /* Signature: 11000101 */
@@ -60,22 +59,34 @@ void loop() {
       transfer_string = Serial.readString();
     }
 
+    int transfer_string_len = transfer_string.length();
+    char characters[transfer_string_len];
+
+    //Transfer string only if there is something to send and there is no incoming message
     if(transfer_string.length() > 0 && !active && shift_counter == 0) {
-      transfer_string.toCharArray(characters,400);
+      transfer_string.toCharArray(characters,transfer_string_len);
 
       send_signature();
       
       for(int i=0; i<transfer_string.length(); i++) {
-        String binary_char = charactersToBinary(String(characters[i]));
         for(int j=0; j<8;j++) {
-          if(binary_char.charAt(j) == '1') {
+          if(characters[i] << j & B10000000 == B10000000) {
+            PORTL |= _BV(0);
+            delayCycle(); 
+          }
+          else {
+            PORTL &= ~(_BV(0));
+            delayCycle();
+          }
+          
+          /*if(binary_char.charAt(j) == '1') {
             PORTL |= _BV(0);
             delayCycle();
           }
           else {
             PORTL &= ~(_BV(0));
             delayCycle();
-          }
+          }*/
         }
       }
       
@@ -89,42 +100,34 @@ void loop() {
   }
   
   int multiplier;
-  
   current_timestamp = micros();
   
   if(current_signal == 1) {
-    //Serial.print("1: ");Serial.println(current_timestamp-last_timestamp);
     multiplier = ((current_timestamp-last_timestamp-CORRECTION_OFFSET)/CYCLE);
   }
   else {
-    //Serial.print("0: ");Serial.println(current_timestamp-last_timestamp);
     multiplier = ((current_timestamp-last_timestamp+CORRECTION_OFFSET)/CYCLE);
   }
-  //Serial.println(multiplier);
-  //Serial.println(current_signal);
+  
   if(multiplier < 9) {
     for(int i=0; i<multiplier; i++) {
       received = received << 1;
       received |= current_signal;
       
       shift_counter++;
-
-      //Serial.println(shift_counter);
       
       if(!active && received == B11000101) {
         active = 1;
         shift_counter = 0;
-        Serial.println("Message start");
+        //Serial.println("Message start");
       }
       
       if(shift_counter == 8) {
-        //Serial.println(received);
         if(active && received == B11000101) {
           active = 0;
-          Serial.println("Message end");
+          //Serial.println("Message end");
           Serial.println(rec);
           rec = "";
-          delay(1000);
         }
         else if(active) {
           rec += String((char)received);
