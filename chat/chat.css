@@ -133,3 +133,17 @@ form {
     padding-top: 15px;
   }
 }
+img.emoji {
+  font-size: inherit;
+  height: 2.7ex;
+  /* prevent img stretch */
+  width: auto;
+  min-width: 15px;
+  min-height: 15px;
+
+  /* Inline alignment adjust the margins  */
+  display: inline-block;
+  margin: -0.4ex .15em 0;
+  line-height: normal;
+  vertical-align: middle;
+}

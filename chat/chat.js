@@ -3,18 +3,18 @@ Messages = new Mongo.Collection("msgs");
 
 
 if (Meteor.isServer) {
-/*  // This code only runs on the server
+  // This code only runs on the server
   //emoji support
   Meteor.publish('emojis', function() {
   // Here you can choose to publish a subset of all emojis
   // if you'd like to.
   return Emojis.find();
-  });*/
+  });
   Meteor.publish("messages", function () {
     return Messages.find({}, {sort: {createdAt: -1}, limit: 5});
   });
   //parameters for serialPort
-  var serialPort = new SerialPort.SerialPort('COM8', {
+  var serialPort = new SerialPort.SerialPort('COM5', {
     baudrate: 9600,
     parser: SerialPort.parsers.readline('\r\n')
   });
@@ -64,10 +64,10 @@ if (Meteor.isServer) {
 /* scrolling code */
 
 if (Meteor.isClient) {
-/*  //subscribing to emojis on client
+  //subscribing to emojis on client
   Meteor.startup(function() {
     Meteor.subscribe('emojis');
-  });*/
+  });
   // This code only runs on the client
   Meteor.subscribe("messages");
   /* helper code */

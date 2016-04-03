@@ -6,16 +6,20 @@
   <div class="container">
     <header>
       <h1>Meteor Chat</h1>
-<!--       {{ ! A block of text. Works similar to the built-in Markdown block helper. }}
+      <span title="smile" class="emoji">😄</span>
+
+      {{ ! A block of text. Works similar to the built-in Markdown block helper. }}
       {{#emoji}}
-      A text with some emojis: :boom: :smile:
-      {{/emoji}} -->
+        now with emojis: :boom: :D
+      {{/emoji}}
       {{> loginButtons}}
     </header>
     <!-- chat messages here -->
     <ul class="message-window">
       {{#each recentMessages}}
-        {{> message}}
+       {{#emoji}}
+          {{> message}}
+        {{/emoji}}
       {{/each}}
     </ul>
     <!-- more-messages button -->
