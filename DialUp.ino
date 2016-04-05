@@ -10,6 +10,7 @@ unsigned int shift_counter = 0;
 unsigned int multiplier;
 
 String rec = "";
+boolean rdy = 0;
 boolean active = 0;
 
 String transfer_string = "";
@@ -47,6 +48,7 @@ void send_signature() {
 /* PIN 53 photodiode, PIN 49 laser */
 void setup() {
   Serial.begin(9600);
+  Serial.setTimeout(10);
   DDRB = B00000000;
   DDRL = B11111111;
 
@@ -56,8 +58,13 @@ void setup() {
 void loop() {
 
   while((PINB & B00000001) == current_signal) {
+    
+    if((PINB & B00000001) == 0 && shift_counter == 0  && !active && Serial.available() > 0) {
 
-    if(shift_counter == 0  && !active && Serial.available()) {
+      send_signature();
+      PORTL &= ~(_BV(0));
+      delayCycle();
+      
       transfer_string = Serial.readString();
       transfer_string_len = transfer_string.length();
       transfer_string.toCharArray(characters,300);
@@ -101,20 +108,23 @@ void loop() {
       
       shift_counter++;
       
-      if(!active && received == B11000101) {
+      if(!active && !rdy && received == B11000101) {
+        rdy = 1;
+        shift_counter = 0;
+      }
+      else if(rdy && !active && received == B11000101) {
         active = 1;
         shift_counter = 0;
         //Serial.println("Message start");
       }
       
       if(shift_counter == 8) {
-        //Serial.println(received);
         if(active && received == B11000101) {
           active = 0;
           //Serial.println("Message end");
           Serial.println(rec);
           rec = "";
-          delay(10);
+          delay(1000);
         }
         else if(active) {
           rec += String((char)received);

@@ -15,7 +15,7 @@ if (Meteor.isServer) {
   });
   //parameters for serialPort
   var serialPort = new SerialPort.SerialPort('/dev/cu.usbmodem1421', {
-    baudrate: 9600,
+    baudrate: 115200,
     parser: SerialPort.parsers.readline('\r\n')
   });
   //tests serial connection
@@ -49,11 +49,12 @@ if (Meteor.isServer) {
     },
     //method for recieveing a message
     receiver: function(message) {
-        var parsed = JSON.parse(message);      
+      console.log(message);
+        /*var parsed = JSON.parse(message);      
         var entry = {messageText: parsed.a,
           createdAt: new Date(),
           username: parsed.b};      
-        Messages.insert(entry); 
+        Messages.insert(entry); */
     }
   });
 }
