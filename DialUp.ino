@@ -59,7 +59,7 @@ void loop() {
 
   while((PINB & B00000001) == current_signal) {
     
-    if((PINB & B00000001) == 0 && shift_counter == 0  && !active && Serial.available() > 0) {
+    if((PINB & B00000001) == 0 && shift_counter == 0  && !rdy && !active && Serial.available() > 0) {
 
       send_signature();
       PORTL &= ~(_BV(0));
@@ -119,8 +119,9 @@ void loop() {
       }
       
       if(shift_counter == 8) {
-        if(active && received == B11000101) {
+        if(rdy && active && received == B11000101) {
           active = 0;
+          rdy = 0;
           //Serial.println("Message end");
           Serial.println(rec);
           rec = "";
