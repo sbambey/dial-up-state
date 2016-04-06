@@ -19,17 +19,18 @@ if (Meteor.isServer) {
     parser: SerialPort.parsers.readline('\r\n')
   });
   //tests serial connection
-   serialPort.on('open', function() {
+  serialPort.on('open', function() {
     console.log('Port open');
   });
   //monitors incoming messages
   serialPort.on('data', Meteor.bindEnvironment(function(data) {
     Meteor.call('receiver', data);  
   }));
+
   //sending message function
   sendToSerialPort = function(message) {
-    serialPort.write(message);
-  };  
+    serialPort.write(message + '\r');
+  };
   Meteor.methods({
     //method for sending a message  
     sendMessage: function (message) {
@@ -49,11 +50,16 @@ if (Meteor.isServer) {
     },
     //method for recieveing a message
     receiver: function(message) {
-        var parsed = JSON.parse(message);      
-        var entry = {messageText: parsed.a,
-          createdAt: new Date(),
-          username: parsed.b};      
-        Messages.insert(entry); 
+      //console.log(message);
+      try {
+        var parsed = JSON.parse(message);
+      } catch(e) {
+        parsed = JSON.parse("{\"a\":\"Message failed. JSON cannot be parsed.\", \"b\":\"System Message\"}");
+      }   
+      var entry = {messageText: parsed.a,
+        createdAt: new Date(),
+        username: parsed.b};      
+      Messages.insert(entry);
     }
   });
 }
