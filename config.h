@@ -1,3 +1,3 @@
-#define CYCLE 3000
+#define CYCLE 10000
 #define CORRECTION_OFFSET 48
-#define TIMEOUT 24
+#define TIMEOUT 500

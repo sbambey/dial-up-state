@@ -1,15 +1,13 @@
 Messages = new Mongo.Collection("msgs");
 
-
-
 if (Meteor.isServer) {
   // This code only runs on the server
   //emoji support
-  Meteor.publish('emojis', function() {
+  /*Meteor.publish('emojis', function() {
     // Here you can choose to publish a subset of all emojis
     // if you'd like to.
     return Emojis.find();
-  });
+  });*/
   Meteor.publish("messages", function () {
     return Messages.find({}, {sort: {createdAt: -1}, limit: 5});
   });
@@ -50,10 +48,11 @@ if (Meteor.isServer) {
     },
     //method for recieveing a message
     receiver: function(message) {
-      //console.log(message);
+      console.log(message);
       try {
         var parsed = JSON.parse(message);
       } catch(e) {
+        //console.log(e);
         parsed = JSON.parse("{\"a\":\"Message failed. JSON cannot be parsed.\", \"b\":\"System Message\"}");
       }   
       var entry = {messageText: parsed.a,
